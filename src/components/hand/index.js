@@ -5,8 +5,8 @@ import Webcam from "react-webcam"
 import '../../App.css'
 import { drawHand } from './utilties'
 import * as fp from 'fingerpose'
-// import victory from '../../victory.png'
-// import thumbsup from '../../thumbsup.png'
+import victory from '../../victory.png'
+import thumbsup from '../../thumbsup.png'
 
 
 
@@ -18,7 +18,8 @@ function Hand() {
     const canvasRef = useRef(null)
 
     //set state for gestures
-    const [recGesture, setRecGesture] = useState({})
+    const [emoji, setEmoji] = useState(null)
+    const images = {thumbs_up:thumbsup, victory:victory}
 
 
     const runHandpose = async () => {
@@ -64,11 +65,20 @@ function Hand() {
                 //estimate gesture
                 const gesture = await GE.estimate(hand[0].landmarks, 8)
                 console.log(gesture)
-                if ((gesture.gestures[0].name) !== undefined) {
-                    setRecGesture(gesture)
-                    console.log('111' ,gesture.gestures[0].name)
-                    console.log('2222',recGesture)
-                }
+                
+                // set gesture state
+                //make sure a gesture is read 
+                if(gesture.gestures !== undefined && gesture.gestures.length > 0) {
+                    const confidence = gesture.gesture.map(
+                        (prediction)=>prediction.confidence
+                        )
+                    // get gesture with highest confidence
+                    const maxConfidence = confidence.indexOf(Math.max.apply(null, confidence)
+                    )
+                    //grab name of highest confidence
+                    setEmoji(gesture.gestures[maxConfidence].name)
+                    console.log(emoji)
+                    }
             }
 
             // Draw mesh
@@ -119,7 +129,7 @@ function Hand() {
                 width: 640,
                 height: 480
             }}>
-                <h1> Gesture </h1>
+                <h1> Gesture {emoji} </h1>
             </div>
         </div>
     )
